@@ -95,15 +95,9 @@ func (g *modelGenerator) genFileForSyslModel() error {
 							NonExportedID(nt.Name+"Key"),
 						)),
 						I("has"),
-						Return(AddrOf(Composite(I(sname),
-							Assert(I("relation"), I(rdname)),
-							Star(I(modelRecv)),
-						))),
+						Return(AddrOf(Composite(I(sname), Assert(I("relation"), I(rdname)), I(modelRecv)))),
 					),
-					Return(AddrOf(Composite(I(sname),
-						Composite(I(rdname)),
-						Star(I(modelRecv)),
-					))),
+					Return(AddrOf(Composite(I(sname), Composite(I(rdname)), I(modelRecv)))),
 				),
 			}))
 	}
@@ -170,7 +164,7 @@ func (g *modelGenerator) unmarshalJSONModelMethod() *FuncDecl {
 func (g *modelGenerator) modelMethod(f FuncDecl) *FuncDecl {
 	f.Recv = Fields(Field{
 		Names: Idents(modelRecv),
-		Type:  Star(I(g.modelName)),
+		Type:  I(g.modelName),
 	}).Parens()
 	return &f
 }

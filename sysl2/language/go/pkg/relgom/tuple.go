@@ -253,7 +253,7 @@ func (g *tupleGenerator) goTupleTypeDecl() Decl {
 func (g *tupleGenerator) tupleMethod(f FuncDecl) *FuncDecl {
 	f.Recv = Fields(Field{
 		Names: Idents(tupleRecv),
-		Type:  Star(I(g.tname)),
+		Type:  I(g.tname),
 	}).Parens()
 	return &f
 }
@@ -313,6 +313,14 @@ func (g *tupleGenerator) goBuilderTypeDecl() Decl {
 	return Types(
 		TypeSpec{Name: *ExportedID(g.builderName), Type: s},
 	).WithDoc(Commentf("// %s builds an instance of %s in the model.", g.builderName, g.tname))
+}
+
+func (g *tupleGenerator) builderMethod(f FuncDecl) *FuncDecl {
+	f.Recv = Fields(Field{
+		Names: Idents(builderRecv),
+		Type:  Star(I(g.builderName)),
+	}).Parens()
+	return &f
 }
 
 func (g *tupleGenerator) goBuilderSetterFuncForSyslAttr(i int, attrName string, attr *sysl.Type) Decl {
@@ -529,6 +537,14 @@ func (g *tupleGenerator) goRelationDecl() Decl {
 	}).WithDoc(Commentf("// %s represents a set of %s.", relation, g.tname))
 }
 
+func (g *tupleGenerator) relationMethod(f FuncDecl) *FuncDecl {
+	f.Recv = Fields(Field{
+		Names: Idents(relationRecv),
+		Type:  I(g.tname + "Relation"),
+	}).Parens()
+	return &f
+}
+
 func (g *tupleGenerator) goRelationInsertMethod() Decl {
 	entity := I("t")
 	modelSet := Dot(Call(Dot(I(relationRecv), "model", "Get"+g.tname)), "set")
@@ -710,20 +726,4 @@ func (g *tupleGenerator) applyFuncType() *FuncType {
 		Params:  *Fields(Field{Names: Idents("t"), Type: Star(I(g.dataName))}),
 		Results: Fields(Field{Type: Star(g.seq("HashMap"))}, Field{Type: I("error")}),
 	}
-}
-
-func (g *tupleGenerator) relationMethod(f FuncDecl) *FuncDecl {
-	f.Recv = Fields(Field{
-		Names: Idents(relationRecv),
-		Type:  Star(I(g.tname + "Relation")),
-	}).Parens()
-	return &f
-}
-
-func (g *tupleGenerator) builderMethod(f FuncDecl) *FuncDecl {
-	f.Recv = Fields(Field{
-		Names: Idents(builderRecv),
-		Type:  Star(I(g.builderName)),
-	}).Parens()
-	return &f
 }
