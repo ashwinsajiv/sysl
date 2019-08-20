@@ -6,7 +6,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-type TupleTypeStaticMetadata struct {
+type EntityTypeStaticMetadata struct {
 	PKMask       []uint64
 	RequiredMask []uint64
 }
