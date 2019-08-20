@@ -9,6 +9,18 @@ import (
 
 const tupleRecv = "t"
 
+func (g *entityGenerator) goAppendTupleDecls(decls []Decl) []Decl {
+	decls = append(decls,
+		g.goTupleTypeDecl(),
+	)
+	for _, nt := range g.namedAttrs {
+		decls = append(decls,
+			g.goGetterFuncForSyslAttr(nt.Name, nt.Type),
+		)
+	}
+	return decls
+}
+
 func (g *entityGenerator) goTupleTypeDecl() Decl {
 	return Types(TypeSpec{
 		Name: *I(g.tname),

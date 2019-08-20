@@ -7,6 +7,14 @@ import (
 
 const tupleDataRecv = "d"
 
+func (g *entityGenerator) goAppendTupleDataDecls(decls []Decl) []Decl {
+	return append(decls,
+		g.goTupleDataTypeDecl(),
+		g.marshalTupleDataJSONFunc(),
+		g.unmarshalTupleDataJSONFunc(),
+	)
+}
+
 func (g *entityGenerator) goTupleDataTypeDecl() Decl {
 	fields := []Field{}
 	if g.haveKeys {

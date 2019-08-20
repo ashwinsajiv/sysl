@@ -97,51 +97,12 @@ func genFileForSyslTypeDecl(s *modelScope, tname string, t *sysl.Type) error {
 	}
 
 	decls := []Decl{}
-
-	if g.haveKeys {
-		decls = append(decls,
-			g.goPKTypeDecl(),
-		)
-	}
-
-	decls = append(decls,
-		g.goTupleDataTypeDecl(),
-		g.marshalTupleDataJSONFunc(),
-		g.unmarshalTupleDataJSONFunc(),
-		g.goTupleTypeDecl(),
-	)
-
-	for _, nt := range g.namedAttrs {
-		decls = append(decls, g.goGetterFuncForSyslAttr(nt.Name, nt.Type))
-	}
-
-	decls = append(decls,
-		g.goBuilderTypeDecl(),
-	)
-
-	for i, nt := range g.namedAttrs {
-		if !g.autoinc.Contains(nt.Name) {
-			decls = append(decls, g.goBuilderSetterFuncForSyslAttr(i, nt.Name, nt.Type))
-		}
-	}
-
-	decls = append(decls,
-		g.goEntityTypeStaticMetadataDecl(),
-		g.goBuilderApplyDecl(),
-		g.goRelationDataDecl(),
-		g.marshalRelationDataJSONFunc(),
-		g.unmarshalRelationDataJSONFunc(),
-		g.goRelationDecl(),
-	)
-
-	if g.haveKeys {
-		decls = append(decls,
-			g.goRelationInsertMethod(),
-			g.goRelationUpdateMethod(),
-			g.goRelationDeleteMethod(),
-			g.goRelationLookupMethod(),
-		)
-	}
+	decls = g.goAppendPKDecls(decls)
+	decls = g.goAppendTupleDataDecls(decls)
+	decls = g.goAppendTupleDecls(decls)
+	decls = g.goAppendBuilderDecls(decls)
+	decls = g.goAppendRelationDataDecls(decls)
+	decls = g.goAppendRelationDecls(decls)
 
 	return g.genSourceForDecls(g.tname, decls...)
 }

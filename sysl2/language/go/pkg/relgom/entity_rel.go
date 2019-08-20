@@ -6,6 +6,21 @@ import (
 
 const relationRecv = "r"
 
+func (g *entityGenerator) goAppendRelationDecls(decls []Decl) []Decl {
+	decls = append(decls,
+		g.goRelationDecl(),
+	)
+	if g.haveKeys {
+		decls = append(decls,
+			g.goRelationInsertMethod(),
+			g.goRelationUpdateMethod(),
+			g.goRelationDeleteMethod(),
+			g.goRelationLookupMethod(),
+		)
+	}
+	return decls
+}
+
 // // ${relation} represents a set of ${ename}.
 // type ${relation} struct {
 //     ${relation}Data

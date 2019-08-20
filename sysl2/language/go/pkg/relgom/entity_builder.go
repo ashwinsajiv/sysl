@@ -9,6 +9,21 @@ import (
 
 const builderRecv = "b"
 
+func (g *entityGenerator) goAppendBuilderDecls(decls []Decl) []Decl {
+	decls = append(decls,
+		g.goBuilderTypeDecl(),
+	)
+	for i, nt := range g.namedAttrs {
+		if !g.autoinc.Contains(nt.Name) {
+			decls = append(decls, g.goBuilderSetterFuncForSyslAttr(i, nt.Name, nt.Type))
+		}
+	}
+	return append(decls,
+		g.goEntityTypeStaticMetadataDecl(),
+		g.goBuilderApplyDecl(),
+	)
+}
+
 func (g *entityGenerator) goBuilderTypeDecl() Decl {
 	s := Struct(
 		Field{Type: I(g.dataName)},

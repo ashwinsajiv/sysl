@@ -6,6 +6,14 @@ import (
 
 const relationDataRecv = "d"
 
+func (g *entityGenerator) goAppendRelationDataDecls(decls []Decl) []Decl {
+	return append(decls,
+		g.goRelationDataDecl(),
+		g.marshalRelationDataJSONFunc(),
+		g.unmarshalRelationDataJSONFunc(),
+	)
+}
+
 // type ${.name}RelationData struct {
 //     set   *seq.HashMap
 // }
