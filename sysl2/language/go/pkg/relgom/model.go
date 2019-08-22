@@ -27,7 +27,6 @@ func newModelGenerator(s *modelScope) *modelGenerator {
 }
 
 func (g *modelGenerator) genFileForSyslModel() error {
-
 	decls := []Decl{
 		// type ${.Model+"ModelKeys"} int
 		Types(TypeSpec{
@@ -46,10 +45,10 @@ func (g *modelGenerator) genFileForSyslModel() error {
 	modelKeys[0].Values = []Expr{Iota()}
 	decls = append(decls, Const(modelKeys...))
 
-	decls = append(decls, Types(*TypeSpec{
+	decls = append(decls, Types(TypeSpec{
 		Name: *I(g.modelName),
 		Type: Struct(Field{Names: Idents("relations"), Type: Star(g.seq("HashMap"))}),
-	}.WithDoc(Commentf("// %s is the model.", g.modelName))))
+	})) //TODO: Fix: .WithDoc(Commentf("// %s is the model.", g.modelName))))
 
 	// // New<Model> creates a new <Model>.
 	// func New<Model>() *<Model> {
@@ -60,17 +59,17 @@ func (g *modelGenerator) genFileForSyslModel() error {
 		Doc:  Comments(Commentf("// %s creates a new %s.", newName, g.modelName)),
 		Name: *I(newName),
 		Type: FuncType{
-			Results: Fields(Field{Type: Star(I(g.modelName))}),
+			Results: Fields(Field{Type: I(g.modelName)}),
 		},
 		Body: Block(
-			Return(Unary("&", Composite(I(g.modelName),
+			Return(Composite(I(g.modelName),
 				Call(Dot(I("seq"), "NewHashMap"),
-					Unary("&", Composite(Dot(I("seq"), "KV"),
+					AddrOf(Composite(Dot(I("seq"), "KV"),
 						KV(I("Key"), g.relgomlib("ModelMetadataKey")),
 						KV(I("Val"), Composite(g.relgomlib("ModelMetadata"))),
 					)),
 				),
-			))),
+			)),
 		),
 	}
 	decls = append(decls, newDeclFunc)
