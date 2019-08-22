@@ -99,7 +99,7 @@ func (g *entityGenerator) goExportedStruct() *StructType {
 		syslutil.NamedTypeAll,
 		true,
 		func(nt syslutil.NamedType) map[string]string {
-			return map[string]string{"json": nt.Name}
+			return map[string]string{"json": nt.Name + ",omitempty"}
 		},
 	)...)
 }

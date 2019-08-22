@@ -31,7 +31,7 @@ func (g *entityGenerator) pkFields() []Field {
 func (g *entityGenerator) pkMethod(f FuncDecl) *FuncDecl {
 	f.Recv = Fields(Field{
 		Names: Idents(pkRecv),
-		Type:  Star(I(g.pkName)),
+		Type:  I(g.pkName),
 	}).Parens()
 	return &f
 }
@@ -62,7 +62,7 @@ func (g *entityGenerator) goPKSetableEqual() Decl {
 		},
 		Body: Block(
 			If(
-				Init("l", "ok")(Assert(I("i"), Star(I(g.pkName)))),
+				Init("l", "ok")(Assert(I("i"), I(g.pkName))),
 				I("ok"),
 				Return(Binary(I(pkRecv), "==", I("l"))),
 			),

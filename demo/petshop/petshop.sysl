@@ -20,6 +20,7 @@ PetShopModel [package="io.sysl.demo.petshop.model"]:
         name <: string?
         dob <: date?
         numLegs <: int?
+        desexed <: bool?
 
     !table EmployeeTendsPet:
         employeeId <: Employee.employeeId [~pk]

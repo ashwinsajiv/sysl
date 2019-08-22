@@ -1,7 +1,10 @@
 package relgomlib
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
+	"reflect"
 
 	"github.com/mediocregopher/seq"
 )
@@ -38,32 +41,48 @@ func (b RelationMapBuilder) Map() map[string]json.Marshaler {
 }
 
 func (b RelationMapBuilder) Set(name string, key interface{}) {
-	if relation, has := b.relations.Get(key); has && relation.(*seq.HashMap).Size() > 0 {
+	if relation, has := b.relations.Get(key); has && relation.(Relation).Size() > 0 {
 		b.m[name] = relation.(json.Marshaler)
 	}
 }
 
 type RelationMapExtractor struct {
-	m         map[string]json.Unmarshaler
+	m         map[string]relationKeyData
 	relations *seq.HashMap
 }
 
+type relationKeyData struct {
+	key             interface{}
+	relationDataPtr interface{}
+}
+
 func NewRelationMapExtractor(relations *seq.HashMap) RelationMapExtractor {
-	return RelationMapExtractor{map[string]json.Unmarshaler{}, relations}
+	return RelationMapExtractor{map[string]relationKeyData{}, relations}
 }
 
-func (b RelationMapExtractor) Map() *map[string]json.Unmarshaler {
-	return &b.m
+func (b RelationMapExtractor) Set(name string, key, relationDataPtr interface{}) {
+	b.m[name] = relationKeyData{key: key, relationDataPtr: relationDataPtr}
 }
 
-func (b RelationMapExtractor) Relations() *seq.HashMap {
-	return b.relations
-}
-
-func (b RelationMapExtractor) Set(name string, value json.Unmarshaler) {
-	b.m[name] = value
-}
-
-func (b RelationMapExtractor) Extract(name string, key interface{}) {
-	b.relations.Set(key, b.m[name])
+func (b RelationMapExtractor) UnmarshalRelationDataJSON(data []byte) (*seq.HashMap, error) {
+	buf := bytes.NewBuffer(data)
+	dec := json.NewDecoder(buf)
+	if tok, err := dec.Token(); err != nil || tok != json.Delim('{') {
+		if err != nil {
+			return nil, err
+		}
+		return nil, fmt.Errorf("must be an object")
+	}
+	for tok, err := dec.Token(); err == nil && tok != json.Delim('}'); tok, err = dec.Token() {
+		name, _ := tok.(string)
+		if kd, has := b.m[name]; has {
+			if err := dec.Decode(kd.relationDataPtr); err != nil {
+				return nil, err
+			}
+			// TODO: Can we avoid reflection?
+			relationData := reflect.ValueOf(kd.relationDataPtr).Elem().Interface()
+			b.relations, _ = b.relations.Set(kd.key, relationData)
+		}
+	}
+	return b.relations, nil
 }

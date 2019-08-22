@@ -9,6 +9,7 @@ require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 // indirect
 	github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d // indirect
 	github.com/antlr/antlr4 v0.0.0-20191011202612-ad2bd05285ca
+	github.com/anz-bank/decimal v0.0.0-20191115032101-ed1ea41a7bff
 	github.com/cornelk/hashmap v1.0.1
 	github.com/dchest/siphash v1.2.1 // indirect
 	github.com/ghodss/yaml v1.0.0

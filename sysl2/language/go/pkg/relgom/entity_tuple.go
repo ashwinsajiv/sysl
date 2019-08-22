@@ -56,6 +56,8 @@ func (g *entityGenerator) goGetterFuncForSyslAttr(attrName string, attr *sysl.Ty
 			),
 		})
 	}
+
+	// FK special case
 	fpath := typeInfo.fkey.Ref.Path
 	ambiguous := g.fkCount[strings.Join(fpath, ".")] > 1
 	relation := ExportedID(fpath[0])
@@ -76,10 +78,11 @@ func (g *entityGenerator) goGetterFuncForSyslAttr(attrName string, attr *sysl.Ty
 			Results: Fields(Field{Type: relation}),
 		},
 		Body: Block(
-			Return(Star(Call(
+			Init("u", "_")(Call(
 				Dot(Call(Dot(I(tupleRecv), "model", "Get"+relation.Name.Text)), "Lookup"),
 				field,
-			))),
+			)),
+			Return(I("u")),
 		),
 	})
 }

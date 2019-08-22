@@ -96,7 +96,7 @@ func (g *entityGenerator) goRelationUpdateMethod() Decl {
 		Doc:  Comments(Commentf("// Update creates a builder to update t in the model.")),
 		Name: *I("Update"),
 		Type: FuncType{
-			Params:  *Fields(Field{Names: Idents("t"), Type: Star(I(g.tname))}),
+			Params:  *Fields(Field{Names: Idents("t"), Type: I(g.tname)}),
 			Results: Fields(Field{Type: Star(I(g.tname + "Builder"))}),
 		},
 		Body: Block(
@@ -127,7 +127,7 @@ func (g *entityGenerator) goRelationDeleteMethod() Decl {
 		Doc:  Comments(Commentf("// Delete deletes t from the model.")),
 		Name: *I("Delete"),
 		Type: FuncType{
-			Params: *Fields(Field{Names: Idents("t"), Type: Star(I(g.tname))}),
+			Params: *Fields(Field{Names: Idents("t"), Type: I(g.tname)}),
 			Results: Fields(
 				Field{Type: I(g.modelName)},
 				Field{Type: I("error")},
@@ -159,7 +159,7 @@ func (g *entityGenerator) goRelationLookupMethod() Decl {
 		Name: *I("Lookup"),
 		Type: FuncType{
 			Params:  *Fields(fields...),
-			Results: Fields(Field{Type: Star(I(g.tname))}),
+			Results: Fields(Field{Type: I(g.tname)}, Field{Type: I("bool")}),
 		},
 		Body: Block(
 			If(
@@ -167,12 +167,15 @@ func (g *entityGenerator) goRelationLookupMethod() Decl {
 					Composite(I(g.pkName), kvs...),
 				)),
 				I("has"),
-				Return(AddrOf(Composite(I(g.tname),
-					KV(I(g.dataName), Assert(I("t"), Star(I(g.dataName)))),
-					KV(I("model"), Dot(I(relationRecv), "model")),
-				))),
+				Return(
+					Composite(I(g.tname),
+						KV(I(g.dataName), Assert(I("t"), Star(I(g.dataName)))),
+						KV(I("model"), Dot(I(relationRecv), "model")),
+					),
+					I("true"),
+				),
 			),
-			Return(Nil()),
+			Return(Composite(I(g.tname)), I("false")),
 		),
 	})
 }

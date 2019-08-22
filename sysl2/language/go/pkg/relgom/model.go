@@ -27,13 +27,7 @@ func newModelGenerator(s *modelScope) *modelGenerator {
 }
 
 func (g *modelGenerator) genFileForSyslModel() error {
-	decls := []Decl{
-		// type ${.Model+"ModelKeys"} int
-		Types(TypeSpec{
-			Name: *NonExportedID(g.modelName + "ModelKeys"),
-			Type: I("int"),
-		}),
-	}
+	decls := []Decl{}
 
 	modelKeys := []ValueSpec{}
 	for _, nt := range g.namedTypes {
@@ -41,7 +35,7 @@ func (g *modelGenerator) genFileForSyslModel() error {
 			Names: []Ident{*NonExportedID(nt.Name + "Key")},
 		})
 	}
-	modelKeys[0].Type = NonExportedID(g.modelName + "ModelKeys")
+	modelKeys[0].Type = I("int")
 	modelKeys[0].Values = []Expr{Iota()}
 	decls = append(decls, Const(modelKeys...))
 
@@ -138,32 +132,35 @@ func (g *modelGenerator) unmarshalJSONModelMethod() *FuncDecl {
 	}
 	for _, nt := range g.namedTypes {
 		stmts = append(stmts,
-			CallStmt(Dot(I("e"), "Set"), String(nt.Name), AddrOf(Composite(NonExportedID(nt.Name+"Data")))),
+			CallStmt(Dot(I("e"), "Set"),
+				String(nt.Name),
+				NonExportedID(nt.Name+"Key"),
+				AddrOf(Composite(NonExportedID(nt.Name+"RelationData"))),
+			),
 		)
 	}
 	stmts = append(stmts,
-		If(
-			Init("err")(Call(g.json("Unmarshal"), I("data"), Call(Dot(I("e"), "Map")))),
-			Binary(I("err"), "!=", Nil()),
-			Return(I("err")),
+		Init("relations", "err")(Call(Dot(I("e"), "UnmarshalRelationDataJSON"), I("data"))),
+		If(nil, Binary(I("err"), "==", Nil()),
+			Assign(Dot(I(modelRecv), "relations"))("=")(I("relations")),
 		),
+		Return(I("err")),
 	)
-	for _, nt := range g.namedTypes {
-		stmts = append(stmts,
-			CallStmt(Dot(I("e"), "Extract"), String(nt.Name), NonExportedID(nt.Name+"Key")),
-		)
-	}
-	stmts = append(stmts,
-		Assign(Dot(I(modelRecv), "relations"))("=")(Call(Dot(I("e"), "Relations"))),
-		Return(Nil()),
-	)
-	return g.modelMethod(*unmarshalJSONMethodDecl(stmts...))
+	return g.modelMethodPointerRecv(*unmarshalJSONMethodDecl(stmts...))
 }
 
 func (g *modelGenerator) modelMethod(f FuncDecl) *FuncDecl {
 	f.Recv = Fields(Field{
 		Names: Idents(modelRecv),
 		Type:  I(g.modelName),
+	}).Parens()
+	return &f
+}
+
+func (g *modelGenerator) modelMethodPointerRecv(f FuncDecl) *FuncDecl {
+	f.Recv = Fields(Field{
+		Names: Idents(modelRecv),
+		Type:  Star(I(g.modelName)),
 	}).Parens()
 	return &f
 }

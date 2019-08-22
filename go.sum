@@ -13,6 +13,8 @@ github.com/antlr/antlr4 v0.0.0-20191011202612-ad2bd05285ca h1:QHbltbNkVcw97h4zA/
 github.com/antlr/antlr4 v0.0.0-20191011202612-ad2bd05285ca/go.mod h1:T7PbCXFs94rrTttyxjbyT5+/1V8T2TYDejxUfHJjw1Y=
 github.com/anz-bank/afero v1.2.3 h1:TqYI2yfLC8JiZQVoHAOCeeEp0bVpb4hxPgn0s8wknGk=
 github.com/anz-bank/afero v1.2.3/go.mod h1:9ZxEEn6pIJ8Rxe320qSDBk6AsU0r9pR7Q4OcevTdifk=
+github.com/anz-bank/decimal v0.0.0-20191115032101-ed1ea41a7bff h1:/ulvvWY5IZu04+pbPFPz/cBLJunFGU6avu3livf6+Mk=
+github.com/anz-bank/decimal v0.0.0-20191115032101-ed1ea41a7bff/go.mod h1:Dze4fhZAHGunfn8SR+K4Fl6BpcRW3xVHRgfMZLYGWkk=
 github.com/asaskevich/govalidator v0.0.0-20180720115003-f9ffefc3facf/go.mod h1:lB+ZfQJz7igIIfQNfa7Ml4HSf2uFQQRzpGGRXenZAgY=
 github.com/asaskevich/govalidator v0.0.0-20190424111038-f61b66f89f4a h1:idn718Q4B6AGu/h5Sxe66HYVdqdGu2l9Iebqhi/AEoA=
 github.com/asaskevich/govalidator v0.0.0-20190424111038-f61b66f89f4a/go.mod h1:lB+ZfQJz7igIIfQNfa7Ml4HSf2uFQQRzpGGRXenZAgY=
@@ -136,6 +138,7 @@ golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
 golang.org/x/text v0.3.2 h1:tW2bmiBqwgJj/UpqtC8EpXEZVYOwU0yG4iWbprSVAcs=
 golang.org/x/text v0.3.2/go.mod h1:bEr9sfX3Q8Zfm5fL9x+3itogRgK3+ptLWKqgva+5dAk=
 golang.org/x/tools v0.0.0-20180917221912-90fa682c2a6e/go.mod h1:n7NCudcB/nEzxVGmLbDWY5pfWTLqBcC2KZ6jyYvM4mQ=
+golang.org/x/tools v0.0.0-20190419195823-c39e7748f6eb/go.mod h1:LCzVGOaR6xXOjkQ3onu1FJEFr0SW1gC7cKk1uF8kGRs=
 golang.org/x/tools v0.0.0-20190614205625-5aca471b1d59 h1:QjA/9ArTfVTLfEhClDCG7SGrZkZixxWpwNCDiwJfh88=
 golang.org/x/tools v0.0.0-20190614205625-5aca471b1d59/go.mod h1:/rFqwRUd4F7ZHNgwSSTFct+R/Kf4OFW1sUzUTQQTgfc=
 gopkg.in/alecthomas/kingpin.v2 v2.2.6 h1:jMFz6MfLP0/4fUyZle81rXUoxOBFi19VUFKVDOQfozc=
