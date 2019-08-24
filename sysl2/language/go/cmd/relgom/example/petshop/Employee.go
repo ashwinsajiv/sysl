@@ -202,3 +202,38 @@ func (r EmployeeRelation) Lookup(employeeID int64) (Employee, bool) {
 	}
 	return Employee{}, false
 }
+
+// Iterator returns an iterator over Employee tuples in r.
+func (r EmployeeRelation) Iterator() EmployeeIterator {
+	return &employeeIterator{model: r.model, set: r.set}
+}
+
+// employeeIterator provides for iteration over a set of employeeIterator tuples.
+type EmployeeIterator interface {
+	MoveNext() bool
+	Current() *Employee
+}
+
+type employeeIterator struct {
+	model PetShopModel
+	set   *seq.HashMap
+	t     *Employee
+}
+
+// MoveNext implements seq.Setable.
+func (i *employeeIterator) MoveNext() bool {
+	kv, set, has := i.set.FirstRestKV()
+	if has {
+		i.set = set
+		i.t = &Employee{employeeData: kv.Val.(*employeeData), model: i.model}
+	}
+	return has
+}
+
+// Current implements seq.Setable.
+func (i *employeeIterator) Current() *Employee {
+	if i.t == nil {
+		panic("no current Employee")
+	}
+	return i.t
+}

@@ -103,6 +103,7 @@ func genFileForSyslTypeDecl(s *modelScope, tname string, t *sysl.Type) error {
 	decls = g.goAppendBuilderDecls(decls)
 	decls = g.goAppendRelationDataDecls(decls)
 	decls = g.goAppendRelationDecls(decls)
+	decls = g.appendIterDecls(decls)
 
 	return g.genSourceForDecls(g.tname, decls...)
 }
@@ -139,4 +140,17 @@ func (g *entityGenerator) goFieldForSyslAttrDef(attrName string, attr *sysl.Type
 		Names: []Ident{*id},
 		Type:  g.typeInfoForSyslType(attr).final,
 	}
+}
+
+type dotter = func(id string, ids ...string) Expr
+
+func method(recv string, typ Expr, f func(recv string, dot dotter) FuncDecl) *FuncDecl {
+	fd := f(recv, func(id string, ids ...string) Expr {
+		return Dot(I(recv), id, ids...)
+	})
+	fd.Recv = Fields(Field{
+		Names: Idents(recv),
+		Type:  typ,
+	}).Parens()
+	return &fd
 }

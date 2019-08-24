@@ -178,3 +178,38 @@ func (r EmployeeTendsPetRelation) Lookup(employeeID int64, petID int64) (Employe
 	}
 	return EmployeeTendsPet{}, false
 }
+
+// Iterator returns an iterator over EmployeeTendsPet tuples in r.
+func (r EmployeeTendsPetRelation) Iterator() EmployeeTendsPetIterator {
+	return &employeeTendsPetIterator{model: r.model, set: r.set}
+}
+
+// employeeTendsPetIterator provides for iteration over a set of employeeTendsPetIterator tuples.
+type EmployeeTendsPetIterator interface {
+	MoveNext() bool
+	Current() *EmployeeTendsPet
+}
+
+type employeeTendsPetIterator struct {
+	model PetShopModel
+	set   *seq.HashMap
+	t     *EmployeeTendsPet
+}
+
+// MoveNext implements seq.Setable.
+func (i *employeeTendsPetIterator) MoveNext() bool {
+	kv, set, has := i.set.FirstRestKV()
+	if has {
+		i.set = set
+		i.t = &EmployeeTendsPet{employeeTendsPetData: kv.Val.(*employeeTendsPetData), model: i.model}
+	}
+	return has
+}
+
+// Current implements seq.Setable.
+func (i *employeeTendsPetIterator) Current() *EmployeeTendsPet {
+	if i.t == nil {
+		panic("no current EmployeeTendsPet")
+	}
+	return i.t
+}

@@ -1,36 +1,153 @@
 package relgom
 
-// // Iterator returns an iterator over Pet tuples in r.
-// func (r PetRelation) Iterator() PetIterator {
-// 	return &petIterator{r.model, r.set, nil}
-// }
+import (
+	. "github.com/anz-bank/sysl/sysl2/codegen/golang" //nolint:golint,stylecheck
+)
 
-// // PetIterator provides for iteration over a set of Pet tuples.
-// type PetIterator interface {
-// 	MoveNext() bool
-// 	Current() *Pet
-// }
+func (g *entityGenerator) appendIterDecls(decls []Decl) []Decl {
+	return append(decls,
+		g.relationIteratorMethodDecl(),
+		g.iteratorIntfDecl(),
+		g.iteratorStructDecl(),
+		g.iteratorMoveNextMethodDecl(),
+		g.iteratorCurrentMethodDecl(),
+	)
+}
 
-// type petIterator struct {
-// 	model PetShopModel
-// 	set   *seq.HashMap
-// 	t     *Pet
-// }
+func (g *entityGenerator) iteratorName() string {
+	return NonExportedName(g.tname + "Iterator")
+}
 
-// // MoveNext implements seq.Setable.
-// func (i *petIterator) MoveNext() bool {
-// 	kv, set, has := i.set.FirstRestKV()
-// 	if has {
-// 		i.set = set
-// 		i.t = &Pet{petData: kv.Val.(*petData), model: i.model}
-// 	}
-// 	return has
-// }
+func (g *entityGenerator) iteratorInterfaceName() string {
+	return ExportedName(g.tname + "Iterator")
+}
 
-// // Current implements seq.Setable.
-// func (i *petIterator) Current() *Pet {
-// 	if i.t == nil {
-// 		panic("no current Pet")
-// 	}
-// 	return i.t
+// // Iterator returns an iterator over ${export(.name)} tuples in r.
+// func (r ${export(.name)}Relation) Iterator() ${export(.name)}Iterator {
+//     return &${unexport(.name)}Iterator{r.model, r.set, nil}
 // }
+func (g *entityGenerator) relationIteratorMethodDecl() Decl {
+	return g.relationMethod(func(recv string, recvDot dotter) FuncDecl {
+		return FuncDecl{
+			Doc:  Comments(Commentf("// Iterator returns an iterator over %s tuples in r.", g.tname)),
+			Name: *I("Iterator"),
+			Type: FuncType{
+				Results: Fields(Field{Type: I(g.iteratorInterfaceName())}),
+			},
+			Body: Block(
+				Return(AddrOf(Composite(I(g.iteratorName()),
+					KV(I("model"), recvDot("model")),
+					KV(I("set"), recvDot("set")),
+				))),
+			),
+		}
+	})
+}
+
+// // ${export(.name)}Iterator provides for iteration over a set of ${export(.name)} tuples.
+// type ${export(.name)}Iterator interface {
+//     MoveNext() bool
+//     Current() *${export(.name)}
+// }
+func (g *entityGenerator) iteratorIntfDecl() Decl {
+	return Types(TypeSpec{
+		Name: *I(g.iteratorInterfaceName()),
+		Type: &InterfaceType{
+			Methods: *Fields(
+				Field{
+					Names: Idents("MoveNext"),
+					Type: &FuncType{
+						Params:  *Fields().Parens(),
+						Results: Fields(Field{Type: I("bool")}),
+					},
+				},
+				Field{
+					Names: Idents("Current"),
+					Type: &FuncType{
+						Params:  *Fields().Parens(),
+						Results: Fields(Field{Type: Star(I(g.tname))}),
+					},
+				},
+			),
+		},
+	}).WithDoc(Commentf("// %s provides for iteration over a set of %[1]s tuples.", g.iteratorName()))
+}
+
+// type ${u(.name)}Iterator struct {
+//     model ${.model.name}
+//     set   *seq.HashMap
+//     t     *${export(.name)}
+// }
+func (g *entityGenerator) iteratorStructDecl() Decl {
+	return Types(TypeSpec{
+		Name: *I(g.iteratorName()),
+		Type: Struct(
+			Field{Names: Idents("model"), Type: I(g.modelName)},
+			Field{Names: Idents("set"), Type: Star(g.seq("HashMap"))},
+			Field{Names: Idents("t"), Type: Star(I(g.tname))},
+		),
+	})
+}
+
+func (g *entityGenerator) iteratorMethodDecl(f func(recv string, recvDot dotter) FuncDecl) *FuncDecl {
+	return method("i", Star(I(g.iteratorName())), f)
+}
+
+// // MoveNext implements ${X(.name)}Iterator.
+// func (i *${u(.name)Iterator) MoveNext() bool {
+//     kv, set, has := i.set.FirstRestKV()
+//     if has {
+//         i.set = set
+//         i.t = &${X(.name)}{${u(.name)Data: kv.Val.(*${u(.name)Data), model: i.model}
+//     }
+//     return has
+// }
+func (g *entityGenerator) iteratorMoveNextMethodDecl() *FuncDecl {
+	return g.iteratorMethodDecl(func(recv string, recvDot dotter) FuncDecl {
+		return FuncDecl{
+			Doc:  Comments(Commentf("// MoveNext implements seq.Setable.")),
+			Name: *I("MoveNext"),
+			Type: FuncType{
+				Results: Fields(Field{Type: I("bool")}),
+			},
+			Body: Block(
+				Init("kv", "set", "has")(Call(recvDot("set", "FirstRestKV"))),
+				If(nil, I("has"),
+					Assign(recvDot("set"))("=")(I("set")),
+					Assign(recvDot("t"))("=")(
+						AddrOf(Composite(I(g.tname),
+							KV(I(g.dataName), Assert(Dot(I("kv"), "Val"), Star(I(g.dataName)))),
+							KV(I("model"), recvDot("model")),
+						)),
+					),
+				),
+				Return(I("has")),
+			),
+		}
+	})
+}
+
+// // Current implements ${X(.name)}Iterator.
+// func (i *${u(.name)}Iterator) Current() *${X(.name)} {
+//     if i.t == nil {
+//         panic("no current ${X(.name)}")
+//     }
+//     return i.t
+// }
+func (g *entityGenerator) iteratorCurrentMethodDecl() *FuncDecl {
+	return g.iteratorMethodDecl(func(recv string, recvDot dotter) FuncDecl {
+		return FuncDecl{
+			Doc:  Comments(Commentf("// Current implements seq.Setable.")),
+			Name: *I("Current"),
+			Type: FuncType{
+				Results: Fields(Field{Type: Star(I(g.tname))}),
+			},
+			Body: Block(
+				If(nil, Binary(recvDot("t"), "==", Nil()),
+					Panic(String("no current "+g.tname)),
+				),
+				Return(recvDot("t")),
+			),
+		}
+	})
+}

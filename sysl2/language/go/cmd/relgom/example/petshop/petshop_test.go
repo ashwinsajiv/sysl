@@ -9,6 +9,8 @@ import (
 )
 
 func TestPetShopModel(t *testing.T) {
+	t.Parallel()
+
 	assert.NotPanics(t, func() {
 		_ = NewPetShopModel()
 	})
@@ -16,6 +18,7 @@ func TestPetShopModel(t *testing.T) {
 
 func TestInsert(t *testing.T) {
 	t.Parallel()
+
 	a := NewPetShopModel()
 	b, lab, err := a.GetBreed().Insert().WithBreedName("Labrador").WithNumLegs(4).Apply()
 	require.NoError(t, err)
@@ -27,6 +30,7 @@ func TestInsert(t *testing.T) {
 
 func TestUpdate(t *testing.T) {
 	t.Parallel()
+
 	a := NewPetShopModel()
 	b, lab, err := a.GetBreed().Insert().WithBreedName("Labrador").WithNumLegs(4).Apply()
 	require.NoError(t, err)
@@ -40,6 +44,7 @@ func TestUpdate(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 	t.Parallel()
+
 	a := NewPetShopModel()
 	b, lab, err := a.GetBreed().Insert().WithBreedName("Labrador").WithNumLegs(4).Apply()
 	require.NoError(t, err)
@@ -51,6 +56,7 @@ func TestDelete(t *testing.T) {
 
 func TestLookup(t *testing.T) {
 	t.Parallel()
+
 	a := NewPetShopModel()
 	b, lab, err := a.GetBreed().Insert().WithBreedName("Labrador").WithNumLegs(4).Apply()
 	require.NoError(t, err)

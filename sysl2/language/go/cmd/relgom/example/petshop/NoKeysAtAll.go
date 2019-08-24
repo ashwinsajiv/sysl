@@ -128,3 +128,38 @@ type NoKeysAtAllRelation struct {
 	noKeysAtAllRelationData
 	model PetShopModel
 }
+
+// Iterator returns an iterator over NoKeysAtAll tuples in r.
+func (r NoKeysAtAllRelation) Iterator() NoKeysAtAllIterator {
+	return &noKeysAtAllIterator{model: r.model, set: r.set}
+}
+
+// noKeysAtAllIterator provides for iteration over a set of noKeysAtAllIterator tuples.
+type NoKeysAtAllIterator interface {
+	MoveNext() bool
+	Current() *NoKeysAtAll
+}
+
+type noKeysAtAllIterator struct {
+	model PetShopModel
+	set   *seq.HashMap
+	t     *NoKeysAtAll
+}
+
+// MoveNext implements seq.Setable.
+func (i *noKeysAtAllIterator) MoveNext() bool {
+	kv, set, has := i.set.FirstRestKV()
+	if has {
+		i.set = set
+		i.t = &NoKeysAtAll{noKeysAtAllData: kv.Val.(*noKeysAtAllData), model: i.model}
+	}
+	return has
+}
+
+// Current implements seq.Setable.
+func (i *noKeysAtAllIterator) Current() *NoKeysAtAll {
+	if i.t == nil {
+		panic("no current NoKeysAtAll")
+	}
+	return i.t
+}

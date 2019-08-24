@@ -178,3 +178,38 @@ func (r EmployeeManagesEmployeeRelation) Lookup(bossID int64, minionID int64) (E
 	}
 	return EmployeeManagesEmployee{}, false
 }
+
+// Iterator returns an iterator over EmployeeManagesEmployee tuples in r.
+func (r EmployeeManagesEmployeeRelation) Iterator() EmployeeManagesEmployeeIterator {
+	return &employeeManagesEmployeeIterator{model: r.model, set: r.set}
+}
+
+// employeeManagesEmployeeIterator provides for iteration over a set of employeeManagesEmployeeIterator tuples.
+type EmployeeManagesEmployeeIterator interface {
+	MoveNext() bool
+	Current() *EmployeeManagesEmployee
+}
+
+type employeeManagesEmployeeIterator struct {
+	model PetShopModel
+	set   *seq.HashMap
+	t     *EmployeeManagesEmployee
+}
+
+// MoveNext implements seq.Setable.
+func (i *employeeManagesEmployeeIterator) MoveNext() bool {
+	kv, set, has := i.set.FirstRestKV()
+	if has {
+		i.set = set
+		i.t = &EmployeeManagesEmployee{employeeManagesEmployeeData: kv.Val.(*employeeManagesEmployeeData), model: i.model}
+	}
+	return has
+}
+
+// Current implements seq.Setable.
+func (i *employeeManagesEmployeeIterator) Current() *EmployeeManagesEmployee {
+	if i.t == nil {
+		panic("no current EmployeeManagesEmployee")
+	}
+	return i.t
+}

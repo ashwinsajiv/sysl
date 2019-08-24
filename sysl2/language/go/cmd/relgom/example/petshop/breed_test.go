@@ -34,3 +34,22 @@ func TestBreed(t *testing.T) {
 
 	assert.True(t, lab.breedPK.Equal(lab.breedPK))
 }
+
+func TestBreedIterator(t *testing.T) {
+	t.Parallel()
+
+	m := NewPetShopModel()
+	m, _, err := m.GetBreed().Insert().WithBreedName("Labrador").WithSpecies("Dog").Apply()
+	require.NoError(t, err)
+	m, _, err = m.GetBreed().Insert().WithBreedName("Birman").WithSpecies("Cat").Apply()
+	require.NoError(t, err)
+	m, _, err = m.GetBreed().Insert().WithBreedName("Goldfish").WithSpecies("Fish").Apply()
+	require.NoError(t, err)
+
+	breedSpecies := map[string]string{}
+	for i := m.GetBreed().Iterator(); i.MoveNext(); {
+		breed := i.Current()
+		breedSpecies[*breed.BreedName()] = *breed.Species()
+	}
+	assert.Equal(t, map[string]string{"Labrador": "Dog", "Birman": "Cat", "Goldfish": "Fish"}, breedSpecies)
+}

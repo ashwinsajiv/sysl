@@ -247,3 +247,38 @@ func (r BreedRelation) Lookup(breedID int64) (Breed, bool) {
 	}
 	return Breed{}, false
 }
+
+// Iterator returns an iterator over Breed tuples in r.
+func (r BreedRelation) Iterator() BreedIterator {
+	return &breedIterator{model: r.model, set: r.set}
+}
+
+// breedIterator provides for iteration over a set of breedIterator tuples.
+type BreedIterator interface {
+	MoveNext() bool
+	Current() *Breed
+}
+
+type breedIterator struct {
+	model PetShopModel
+	set   *seq.HashMap
+	t     *Breed
+}
+
+// MoveNext implements seq.Setable.
+func (i *breedIterator) MoveNext() bool {
+	kv, set, has := i.set.FirstRestKV()
+	if has {
+		i.set = set
+		i.t = &Breed{breedData: kv.Val.(*breedData), model: i.model}
+	}
+	return has
+}
+
+// Current implements seq.Setable.
+func (i *breedIterator) Current() *Breed {
+	if i.t == nil {
+		panic("no current Breed")
+	}
+	return i.t
+}

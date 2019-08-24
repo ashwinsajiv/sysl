@@ -502,8 +502,12 @@ func (n *InterfaceType) Format(s fmt.State, c rune) {
 	if len(n.Methods.List) == 0 {
 		scPrintf(s, c, "interface{}")
 	} else {
-		methods := NoCommaSepFieldList(n.Methods)
-		scPrintf(s, c, "interface {\n%c}\n", &methods)
+		scPrintf(s, c, "interface {\n")
+		for _, m := range n.Methods.List {
+			f := m.Type.(*FuncType)
+			scPrintf(s, c, "%c %c %c\n", &m.Names[0], &f.Params, f.Results)
+		}
+		scPrintf(s, c, "}\n")
 	}
 }
 
