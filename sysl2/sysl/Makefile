@@ -43,7 +43,7 @@ $(JS): sysl_js/SyslParser.g4 sysl_js/SyslLexer.g4
 
 # make run file=path/to/file.sysl args=-gui
 .PHONY : run
-run: antlr
+run: /usr/localantlr
 	java -cp "./classes:./lib/antlr-4.7-complete.jar" org.antlr.v4.gui.TestRig Sysl sysl_file $(file) $(args)
 
 SYSL_TEST_FILES = \
