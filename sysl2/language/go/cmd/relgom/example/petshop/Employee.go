@@ -192,7 +192,8 @@ func (r EmployeeRelation) Update(t Employee) *EmployeeBuilder {
 // Delete deletes t from the model.
 func (r EmployeeRelation) Delete(t Employee) (PetShopModel, error) {
 	set, _ := r.model.GetEmployee().set.Del(t.employeePK)
-	return PetShopModel{set}, nil
+	relations, _ := r.model.relations.Set(employeeKey, employeeRelationData{set: set})
+	return PetShopModel{relations: relations}, nil
 }
 
 // Lookup searches Employee by primary key.

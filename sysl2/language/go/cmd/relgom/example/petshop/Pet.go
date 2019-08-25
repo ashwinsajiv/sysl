@@ -223,7 +223,8 @@ func (r PetRelation) Update(t Pet) *PetBuilder {
 // Delete deletes t from the model.
 func (r PetRelation) Delete(t Pet) (PetShopModel, error) {
 	set, _ := r.model.GetPet().set.Del(t.petPK)
-	return PetShopModel{set}, nil
+	relations, _ := r.model.relations.Set(petKey, petRelationData{set: set})
+	return PetShopModel{relations: relations}, nil
 }
 
 // Lookup searches Pet by primary key.

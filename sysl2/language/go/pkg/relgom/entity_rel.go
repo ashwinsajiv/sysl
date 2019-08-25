@@ -117,6 +117,12 @@ func (g *entityGenerator) goRelationUpdateMethod() Decl {
 	})
 }
 
+// // Delete deletes t from the model.
+// func (r ${X(.name)}Relation) Delete(t ${X(.name)}) (${.model.name}, error) {
+//     set, _ := r.model.Get${X(.name)}().set.Del(t.${u(.name)}PK)
+//     relations, _ := r.model.relations.Set(${u(.name)}Key, ${u(.name)}RelationData{set: set})
+//     return ${.model.name}{relations: relations}, nil
+// }
 func (g *entityGenerator) goRelationDeleteMethod() Decl {
 	return g.relationMethod(func(recv string, recvDot dotter) FuncDecl {
 		entity := I("t")
@@ -134,7 +140,14 @@ func (g *entityGenerator) goRelationDeleteMethod() Decl {
 			},
 			Body: Block(
 				Init("set", "_")(Call(Dot(modelSet, "Del"), Dot(entity, g.pkName))),
-				Return(Composite(I(g.modelName), I("set")), Nil()),
+				Init("relations", "_")(
+					Call(
+						recvDot("model", "relations", "Set"),
+						NonExportedID(g.tname+"Key"),
+						Composite(I(g.relationDataName), KV(I("set"), I("set"))),
+					),
+				),
+				Return(Composite(I(g.modelName), KV(I("relations"), I("relations"))), Nil()),
 			),
 		}
 	})

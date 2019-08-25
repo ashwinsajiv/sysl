@@ -168,7 +168,8 @@ func (r EmployeeManagesEmployeeRelation) Update(t EmployeeManagesEmployee) *Empl
 // Delete deletes t from the model.
 func (r EmployeeManagesEmployeeRelation) Delete(t EmployeeManagesEmployee) (PetShopModel, error) {
 	set, _ := r.model.GetEmployeeManagesEmployee().set.Del(t.employeeManagesEmployeePK)
-	return PetShopModel{set}, nil
+	relations, _ := r.model.relations.Set(employeeManagesEmployeeKey, employeeManagesEmployeeRelationData{set: set})
+	return PetShopModel{relations: relations}, nil
 }
 
 // Lookup searches EmployeeManagesEmployee by primary key.
