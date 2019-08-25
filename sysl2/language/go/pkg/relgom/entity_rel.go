@@ -14,6 +14,7 @@ func (g *entityGenerator) goAppendRelationDecls(decls []Decl) []Decl {
 			g.goRelationUpdateMethod(),
 			g.goRelationDeleteMethod(),
 			g.goRelationLookupMethod(),
+			g.goRelationDeleteWhereMethod(),
 		)
 	}
 	return decls
@@ -148,6 +149,61 @@ func (g *entityGenerator) goRelationDeleteMethod() Decl {
 					),
 				),
 				Return(Composite(I(g.modelName), KV(I("relations"), I("relations"))), Nil()),
+			),
+		}
+	})
+}
+
+// // DeleteWhere deletes tuples matching `where` from r.
+// func (r ${X(.name)Relation) DeleteWhere(where func(t *${X(.name)) bool) (${X(.model.name), error) {
+//     model := r.model
+//     for i := r.Iterator(); i.MoveNext(); {
+//         t := i.Current()
+//         if where(t) {
+//             var err error
+//             if model, err = model.Get${X(.name)().Delete(t); err != nil {
+//                 return ${X(.model.name){}, err
+//             }
+//         }
+//     }
+//     return model, nil
+// }
+func (g *entityGenerator) goRelationDeleteWhereMethod() Decl {
+	return g.relationMethod(func(recv string, recvDot dotter) FuncDecl {
+		return FuncDecl{
+			Doc:  Comments(Commentf("// DeleteWhere deletes tuples matching `where` from r.")),
+			Name: *I("DeleteWhere"),
+			Type: FuncType{
+				Params: *Fields(Field{
+					Names: Idents("where"),
+					Type: &FuncType{
+						Params:  *Fields(Field{Names: Idents("t"), Type: I(g.tname)}),
+						Results: Fields(Field{Type: I("bool")}),
+					},
+				}),
+				Results: Fields(
+					Field{Type: I(g.modelName)},
+					Field{Type: I("error")},
+				),
+			},
+			Body: Block(
+				Init("model")(recvDot("model")),
+				&ForStmt{
+					Init: Init("i")(Call(recvDot("Iterator"))),
+					Cond: Call(Dot(I("i"), "MoveNext")),
+					Body: *Block(
+						Init("t")(Call(Dot(I("i"), "Current"))),
+						If(nil, Call(I("where"), I("t")),
+							&DeclStmt{Decl: Var(ValueSpec{Names: Idents("err"), Type: I("error")})},
+							If(
+								Assign(I("model"), I("err"))("=")(Call(Dot(Call(Dot(I("model"), "Get"+g.tname)), "Delete"), I("t"))),
+								Binary(I("err"), "!=", Nil()),
+								Return(Composite(I(g.modelName)), I("err")),
+							),
+						),
+					),
+				},
+				Return(I("model"), Nil()),
 			),
 		}
 	})

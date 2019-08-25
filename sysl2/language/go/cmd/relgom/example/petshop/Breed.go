@@ -249,6 +249,21 @@ func (r BreedRelation) Lookup(breedID int64) (Breed, bool) {
 	return Breed{}, false
 }
 
+// Delete deletes t from the model.
+func (r BreedRelation) DeleteWhere(where func(t Breed) bool) (PetShopModel, error) {
+	model := r.model
+	for i := r.Iterator(); i.MoveNext(); {
+		t := i.Current()
+		if where(t) {
+			var err error
+			if model, err = model.GetBreed().Delete(t); err != nil {
+				return PetShopModel{}, err
+			}
+		}
+	}
+	return model, nil
+}
+
 // Iterator returns an iterator over Breed tuples in r.
 func (r BreedRelation) Iterator() BreedIterator {
 	return &breedIterator{model: r.model, set: r.set}
@@ -257,7 +272,7 @@ func (r BreedRelation) Iterator() BreedIterator {
 // breedIterator provides for iteration over a set of breedIterator tuples.
 type BreedIterator interface {
 	MoveNext() bool
-	Current() *Breed
+	Current() Breed
 }
 
 type breedIterator struct {
@@ -277,9 +292,9 @@ func (i *breedIterator) MoveNext() bool {
 }
 
 // Current implements seq.Setable.
-func (i *breedIterator) Current() *Breed {
+func (i *breedIterator) Current() Breed {
 	if i.t == nil {
 		panic("no current Breed")
 	}
-	return i.t
+	return *i.t
 }

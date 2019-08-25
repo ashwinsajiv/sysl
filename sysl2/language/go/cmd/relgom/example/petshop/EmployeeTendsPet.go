@@ -180,6 +180,21 @@ func (r EmployeeTendsPetRelation) Lookup(employeeID int64, petID int64) (Employe
 	return EmployeeTendsPet{}, false
 }
 
+// Delete deletes t from the model.
+func (r EmployeeTendsPetRelation) DeleteWhere(where func(t EmployeeTendsPet) bool) (PetShopModel, error) {
+	model := r.model
+	for i := r.Iterator(); i.MoveNext(); {
+		t := i.Current()
+		if where(t) {
+			var err error
+			if model, err = model.GetEmployeeTendsPet().Delete(t); err != nil {
+				return PetShopModel{}, err
+			}
+		}
+	}
+	return model, nil
+}
+
 // Iterator returns an iterator over EmployeeTendsPet tuples in r.
 func (r EmployeeTendsPetRelation) Iterator() EmployeeTendsPetIterator {
 	return &employeeTendsPetIterator{model: r.model, set: r.set}
@@ -188,7 +203,7 @@ func (r EmployeeTendsPetRelation) Iterator() EmployeeTendsPetIterator {
 // employeeTendsPetIterator provides for iteration over a set of employeeTendsPetIterator tuples.
 type EmployeeTendsPetIterator interface {
 	MoveNext() bool
-	Current() *EmployeeTendsPet
+	Current() EmployeeTendsPet
 }
 
 type employeeTendsPetIterator struct {
@@ -208,9 +223,9 @@ func (i *employeeTendsPetIterator) MoveNext() bool {
 }
 
 // Current implements seq.Setable.
-func (i *employeeTendsPetIterator) Current() *EmployeeTendsPet {
+func (i *employeeTendsPetIterator) Current() EmployeeTendsPet {
 	if i.t == nil {
 		panic("no current EmployeeTendsPet")
 	}
-	return i.t
+	return *i.t
 }

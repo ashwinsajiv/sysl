@@ -47,7 +47,7 @@ func (g *entityGenerator) relationIteratorMethodDecl() Decl {
 // // ${export(.name)}Iterator provides for iteration over a set of ${export(.name)} tuples.
 // type ${export(.name)}Iterator interface {
 //     MoveNext() bool
-//     Current() *${export(.name)}
+//     Current() ${export(.name)}
 // }
 func (g *entityGenerator) iteratorIntfDecl() Decl {
 	return Types(TypeSpec{
@@ -65,7 +65,7 @@ func (g *entityGenerator) iteratorIntfDecl() Decl {
 					Names: Idents("Current"),
 					Type: &FuncType{
 						Params:  *Fields().Parens(),
-						Results: Fields(Field{Type: Star(I(g.tname))}),
+						Results: Fields(Field{Type: I(g.tname)}),
 					},
 				},
 			),
@@ -128,7 +128,7 @@ func (g *entityGenerator) iteratorMoveNextMethodDecl() *FuncDecl {
 }
 
 // // Current implements ${X(.name)}Iterator.
-// func (i *${u(.name)}Iterator) Current() *${X(.name)} {
+// func (i *${u(.name)}Iterator) Current() ${X(.name)} {
 //     if i.t == nil {
 //         panic("no current ${X(.name)}")
 //     }
@@ -140,13 +140,13 @@ func (g *entityGenerator) iteratorCurrentMethodDecl() *FuncDecl {
 			Doc:  Comments(Commentf("// Current implements seq.Setable.")),
 			Name: *I("Current"),
 			Type: FuncType{
-				Results: Fields(Field{Type: Star(I(g.tname))}),
+				Results: Fields(Field{Type: I(g.tname)}),
 			},
 			Body: Block(
 				If(nil, Binary(recvDot("t"), "==", Nil()),
 					Panic(String("no current "+g.tname)),
 				),
-				Return(recvDot("t")),
+				Return(Star(recvDot("t"))),
 			),
 		}
 	})

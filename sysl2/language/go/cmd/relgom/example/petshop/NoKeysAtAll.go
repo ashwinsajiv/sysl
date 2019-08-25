@@ -137,7 +137,7 @@ func (r NoKeysAtAllRelation) Iterator() NoKeysAtAllIterator {
 // noKeysAtAllIterator provides for iteration over a set of noKeysAtAllIterator tuples.
 type NoKeysAtAllIterator interface {
 	MoveNext() bool
-	Current() *NoKeysAtAll
+	Current() NoKeysAtAll
 }
 
 type noKeysAtAllIterator struct {
@@ -157,9 +157,9 @@ func (i *noKeysAtAllIterator) MoveNext() bool {
 }
 
 // Current implements seq.Setable.
-func (i *noKeysAtAllIterator) Current() *NoKeysAtAll {
+func (i *noKeysAtAllIterator) Current() NoKeysAtAll {
 	if i.t == nil {
 		panic("no current NoKeysAtAll")
 	}
-	return i.t
+	return *i.t
 }

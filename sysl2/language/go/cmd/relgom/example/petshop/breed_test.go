@@ -1,6 +1,7 @@
 package petshopmodel
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/anz-bank/decimal"
@@ -52,4 +53,50 @@ func TestBreedIterator(t *testing.T) {
 		breedSpecies[*breed.BreedName()] = *breed.Species()
 	}
 	assert.Equal(t, map[string]string{"Labrador": "Dog", "Birman": "Cat", "Goldfish": "Fish"}, breedSpecies)
+}
+
+func TestBreedDeleteWhere(t *testing.T) {
+	t.Parallel()
+
+	m := NewPetShopModel()
+	m, _, err := m.GetBreed().Insert().WithBreedName("Labrador").WithSpecies("Dog").Apply()
+	require.NoError(t, err)
+	m, _, err = m.GetBreed().Insert().WithBreedName("Birman").WithSpecies("Cat").Apply()
+	require.NoError(t, err)
+	m, _, err = m.GetBreed().Insert().WithBreedName("Goldfish").WithSpecies("Fish").Apply()
+	require.NoError(t, err)
+
+	mJSON, err := json.Marshal(m)
+	require.NoError(t, err)
+	t.Logf("m: %v", string(mJSON))
+	cat, err := m.GetBreed().DeleteWhere(func(t Breed) bool {
+		return *t.Species() == "Cat"
+	})
+	if assert.NoError(t, err) {
+		catJSON, err := json.Marshal(cat)
+		require.NoError(t, err)
+		t.Logf("cat: %v", string(catJSON))
+		assert.JSONEq(t,
+			canonicalJSONString(`{"Breed":[
+				{"breedId":1, "breedName":"Labrador", "species": "Dog"},
+				{"breedId":3, "breedName":"Goldfish", "species": "Fish"}
+			]}`),
+			canonicalJSONBytes(catJSON),
+		)
+	}
+
+	notCat, err := m.GetBreed().DeleteWhere(func(t Breed) bool {
+		return *t.Species() != "Cat"
+	})
+	if assert.NoError(t, err) {
+		notCatJSON, err := json.Marshal(notCat)
+		require.NoError(t, err)
+		t.Logf("notCat: %v", string(notCatJSON))
+		assert.JSONEq(t,
+			canonicalJSONString(`{"Breed":[
+				{"breedId":2, "breedName":"Birman", "species": "Cat"}
+			]}`),
+			canonicalJSONBytes(notCatJSON),
+		)
+	}
 }
