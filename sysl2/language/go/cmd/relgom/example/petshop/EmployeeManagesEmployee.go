@@ -180,7 +180,7 @@ func (r EmployeeManagesEmployeeRelation) Lookup(bossID int64, minionID int64) (E
 	return EmployeeManagesEmployee{}, false
 }
 
-// Delete deletes t from the model.
+// DeleteWhere deletes tuples matching `where` from r.
 func (r EmployeeManagesEmployeeRelation) DeleteWhere(where func(t EmployeeManagesEmployee) bool) (PetShopModel, error) {
 	model := r.model
 	for i := r.Iterator(); i.MoveNext(); {

@@ -52,9 +52,17 @@ func valueTypeToPrimitiveType(t valueType) (sysl.Type_Primitive, bool) {
 
 //nolint:gochecknoglobals
 var (
-	stringType = &sysl.Type{Type: &sysl.Type_Primitive_{Primitive: sysl.Type_STRING}}
+	stringType = &sysl.Type{
+		Type: &sysl.Type_Primitive_{
+			Primitive: sysl.Type_STRING,
+		},
+	}
 
-	intType = &sysl.Type{Type: &sysl.Type_Primitive_{Primitive: sysl.Type_INT}}
+	intType = &sysl.Type{
+		Type: &sysl.Type_Primitive_{
+			Primitive: sysl.Type_INT,
+		},
+	}
 
 	listStringType = &sysl.Type{
 		Type: &sysl.Type_List_{

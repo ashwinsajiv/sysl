@@ -76,7 +76,7 @@ func genFileForSyslTypeDecl(s *modelScope, tname string, t *sysl.Type) error {
 		if g.pkey.Contains(nt.Name) {
 			g.pkMask[i/64] |= mask
 		}
-		if !nt.Type.Opt {
+		if !forceOptional && !nt.Type.Opt {
 			g.requiredMask[i/64] |= mask
 		}
 		if g.attrPatterns[nt.Name].Contains("autoinc") {

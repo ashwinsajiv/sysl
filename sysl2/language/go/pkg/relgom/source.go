@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"go/format"
+	"os"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -12,7 +13,17 @@ import (
 	sysl "github.com/anz-bank/sysl/src/proto"
 	. "github.com/anz-bank/sysl/sysl2/codegen/golang" //nolint:golint,stylecheck
 	"github.com/anz-bank/sysl/sysl2/language/go/pkg/codegen"
+	"github.com/anz-bank/sysl/sysl2/sysl/syslutil"
 )
+
+//nolint:gochecknoglobals
+var forceOptional = func() bool {
+	forceOptional := os.Getenv("RELGOM_ALL_FIELDS_OPTIONAL") == "1"
+	if forceOptional {
+		logrus.Warnf("All generated fields will be marked optional.")
+	}
+	return forceOptional
+}()
 
 type commonModules struct {
 	json      func(name string) Expr
@@ -116,7 +127,7 @@ type typeInfo struct {
 	fkey  *sysl.ScopedRef
 }
 
-func (g *sourceGenerator) typeInfoForSyslType(t *sysl.Type) typeInfo {
+func (g *sourceGenerator) typeInfoForSyslType(t *sysl.Type) *typeInfo {
 	var ti typeInfo
 	switch t := t.Type.(type) {
 	case *sysl.Type_Primitive_:
@@ -143,11 +154,12 @@ func (g *sourceGenerator) typeInfoForSyslType(t *sysl.Type) typeInfo {
 		panic(fmt.Errorf("type: %#v", t))
 	}
 	ti.param = ti.final
-	if t.Opt {
+	patterns := syslutil.MakeStrSetFromAttr("patterns", t.Attrs)
+	if (t.Opt || forceOptional) && !patterns.Contains("pk") {
 		ti.opt = true
 		ti.final = Star(ti.final)
 	}
-	return ti
+	return &ti
 }
 
 func (g *sourceGenerator) typeForScopedRef(t *sysl.ScopedRef) *sysl.Type {

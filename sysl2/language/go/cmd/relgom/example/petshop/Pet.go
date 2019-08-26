@@ -235,7 +235,7 @@ func (r PetRelation) Lookup(petID int64) (Pet, bool) {
 	return Pet{}, false
 }
 
-// Delete deletes t from the model.
+// DeleteWhere deletes tuples matching `where` from r.
 func (r PetRelation) DeleteWhere(where func(t Pet) bool) (PetShopModel, error) {
 	model := r.model
 	for i := r.Iterator(); i.MoveNext(); {
