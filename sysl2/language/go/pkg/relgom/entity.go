@@ -76,14 +76,15 @@ func genFileForSyslTypeDecl(s *modelScope, tname string, t *sysl.Type) error {
 		if g.pkey.Contains(nt.Name) {
 			g.pkMask[i/64] |= mask
 		}
-		if !forceOptional && !nt.Type.Opt {
+		info := g.typeInfoForSyslType(nt.Type)
+		if !info.opt {
 			g.requiredMask[i/64] |= mask
 		}
 		if g.attrPatterns[nt.Name].Contains("autoinc") {
 			g.autoinc.Insert(nt.Name)
 			g.requiredMask[i/64] &= ^mask
 		}
-		if fkey := g.typeInfoForSyslType(nt.Type).fkey; fkey != nil {
+		if fkey := info.fkey; fkey != nil {
 			path := strings.Join(fkey.Ref.Path, ".")
 			if n, has := g.fkCount[path]; has {
 				g.fkCount[path] = n + 1
