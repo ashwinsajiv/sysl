@@ -113,7 +113,7 @@ type PetBuilder struct {
 	apply func(t *petData) (*seq.HashMap, error)
 }
 
-// WithBreedID sets the breedId attribute of the PetBuilder from t.
+// WithBreed sets the breedId attribute of the PetBuilder from t.
 func (b *PetBuilder) WithBreed(t Breed) *PetBuilder {
 	relgomlib.UpdateMaskForFieldButPanicIfAlreadySet(&b.mask[0], (uint64(1) << 1))
 	b.breedID = &t.breedID

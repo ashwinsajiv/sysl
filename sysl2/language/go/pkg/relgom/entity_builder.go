@@ -83,7 +83,7 @@ func (g *entityGenerator) goBuilderSetterFuncForSyslAttr(i int, attrName string,
 		field = AddrOf(field)
 	}
 	return g.builderMethod(FuncDecl{
-		Doc:  Comments(Commentf("// %s sets the %s attribute of the %s from t.", exp, attrName, g.builderName)),
+		Doc:  Comments(Commentf("// %s sets the %s attribute of the %s from t.", exp2, attrName, g.builderName)),
 		Name: *I(exp2),
 		Type: FuncType{
 			Params:  *Fields(Field{Names: Idents("t"), Type: I(fpath[0])}),

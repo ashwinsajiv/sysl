@@ -81,14 +81,14 @@ type EmployeeManagesEmployeeBuilder struct {
 	apply func(t *employeeManagesEmployeeData) (*seq.HashMap, error)
 }
 
-// WithBossID sets the bossId attribute of the EmployeeManagesEmployeeBuilder from t.
+// WithEmployeeForBossID sets the bossId attribute of the EmployeeManagesEmployeeBuilder from t.
 func (b *EmployeeManagesEmployeeBuilder) WithEmployeeForBossID(t Employee) *EmployeeManagesEmployeeBuilder {
 	relgomlib.UpdateMaskForFieldButPanicIfAlreadySet(&b.mask[0], (uint64(1) << 0))
 	b.bossID = t.employeeID
 	return b
 }
 
-// WithMinionID sets the minionId attribute of the EmployeeManagesEmployeeBuilder from t.
+// WithEmployeeForMinionID sets the minionId attribute of the EmployeeManagesEmployeeBuilder from t.
 func (b *EmployeeManagesEmployeeBuilder) WithEmployeeForMinionID(t Employee) *EmployeeManagesEmployeeBuilder {
 	relgomlib.UpdateMaskForFieldButPanicIfAlreadySet(&b.mask[0], (uint64(1) << 1))
 	b.minionID = t.employeeID

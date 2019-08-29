@@ -81,14 +81,14 @@ type EmployeeTendsPetBuilder struct {
 	apply func(t *employeeTendsPetData) (*seq.HashMap, error)
 }
 
-// WithEmployeeID sets the employeeId attribute of the EmployeeTendsPetBuilder from t.
+// WithEmployee sets the employeeId attribute of the EmployeeTendsPetBuilder from t.
 func (b *EmployeeTendsPetBuilder) WithEmployee(t Employee) *EmployeeTendsPetBuilder {
 	relgomlib.UpdateMaskForFieldButPanicIfAlreadySet(&b.mask[0], (uint64(1) << 0))
 	b.employeeID = t.employeeID
 	return b
 }
 
-// WithPetID sets the petId attribute of the EmployeeTendsPetBuilder from t.
+// WithPet sets the petId attribute of the EmployeeTendsPetBuilder from t.
 func (b *EmployeeTendsPetBuilder) WithPet(t Pet) *EmployeeTendsPetBuilder {
 	relgomlib.UpdateMaskForFieldButPanicIfAlreadySet(&b.mask[0], (uint64(1) << 1))
 	b.petID = t.petID
