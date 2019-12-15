@@ -79,6 +79,25 @@ func (s *TreeShapeListener) EnterName_str(ctx *parser.Name_strContext) {
 	s.app_name = append(s.app_name, ctx.GetText())
 }
 
+func typeReference(context_app_part []string, context_path []string, ref_path []string) *sysl.Type {
+	fmt.Print(context_app_part, context_path, ref_path)
+	return &sysl.Type{
+		Type: &sysl.Type_TypeRef{
+			TypeRef: &sysl.ScopedRef{
+				Context: &sysl.Scope{
+					Appname: &sysl.AppName{
+						Part: context_app_part,
+					},
+					Path: context_path,
+				},
+				Ref: &sysl.Scope{
+					Path: ref_path,
+				},
+			},
+		},
+	}
+}
+
 // EnterReference is called when production reference is entered.
 func (s *TreeShapeListener) EnterReference(*parser.ReferenceContext) {
 	context_app_part := s.module.Apps[s.appname].Name.Part
@@ -820,21 +839,8 @@ func (s *TreeShapeListener) ExitUnion(ctx *parser.UnionContext) {
 
 	oneof := s.module.Apps[s.appname].Types[s.typename].GetOneOf()
 	for _, ref := range ctx.AllUser_defined_type() {
-		oneof.Type = append(oneof.Type, &sysl.Type{
-			Type: &sysl.Type_TypeRef{
-				TypeRef: &sysl.ScopedRef{
-					Context: &sysl.Scope{
-						Appname: &sysl.AppName{
-							Part: context_app_part,
-						},
-						Path: context_path,
-					},
-					Ref: &sysl.Scope{
-						Path: []string{ref.(*parser.User_defined_typeContext).Name_str().GetText()},
-					},
-				},
-			},
-		})
+		ref_path := []string{ref.(*parser.User_defined_typeContext).Name_str().GetText()}
+		oneof.Type = append(oneof.Type, typeReference(context_app_part, context_path, ref_path))
 	}
 
 	s.popTypename()
@@ -919,24 +925,11 @@ func (s *TreeShapeListener) EnterQuery_var(ctx *parser.Query_varContext) {
 	var_name := ctx.Name().GetText()
 	var type1 *sysl.Type
 	var ref_path []string
-
+	context_app_part := s.module.Apps[s.appname].Name.Part
 	switch {
 	case ctx.Var_in_curly() != nil:
 		ref_path = append(ref_path, ctx.Var_in_curly().GetText())
-		type1 = &sysl.Type{
-			Type: &sysl.Type_TypeRef{
-				TypeRef: &sysl.ScopedRef{
-					Context: &sysl.Scope{
-						Appname: &sysl.AppName{
-							Part: s.module.Apps[s.appname].Name.Part,
-						},
-					},
-					Ref: &sysl.Scope{
-						Path: ref_path,
-					},
-				},
-			},
-		}
+		type1 = typeReference(context_app_part, nil, ref_path)
 	case ctx.NativeDataTypes() != nil:
 		primType, constraints := primitiveFromNativeDataType(ctx.NativeDataTypes())
 		type1 = &sysl.Type{
@@ -970,6 +963,7 @@ func (s *TreeShapeListener) EnterQuery_var(ctx *parser.Query_varContext) {
 func (s *TreeShapeListener) EnterHttp_path_var_with_type(ctx *parser.Http_path_var_with_typeContext) {
 	var_name := ctx.Http_path_part().GetText()
 	var type1 *sysl.Type
+	context_app_part := s.module.Apps[s.appname].Name.Part
 	switch {
 	case ctx.NativeDataTypes() != nil:
 		primType, constraints := primitiveFromNativeDataType(ctx.NativeDataTypes())
@@ -986,20 +980,7 @@ func (s *TreeShapeListener) EnterHttp_path_var_with_type(ctx *parser.Http_path_v
 	default:
 		ref_path := []string{ctx.Name_str().GetText()}
 
-		type1 = &sysl.Type{
-			Type: &sysl.Type_TypeRef{
-				TypeRef: &sysl.ScopedRef{
-					Context: &sysl.Scope{
-						Appname: &sysl.AppName{
-							Part: s.module.Apps[s.appname].Name.Part,
-						},
-					},
-					Ref: &sysl.Scope{
-						Path: ref_path,
-					},
-				},
-			},
-		}
+		type1 = typeReference(context_app_part, nil, ref_path)
 	}
 	rest_param := &sysl.Endpoint_RestParams_QueryParam{
 		Name: var_name,
