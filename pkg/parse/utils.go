@@ -99,3 +99,8 @@ func primitiveFromNativeDataType(native antlr.TerminalNode) (*sysl.Type_Primitiv
 	}
 	return &sysl.Type_Primitive_{Primitive: primitiveType}, constraint
 }
+
+func findTypeRef(scope []string, path []string, module *sysl.Module) *sysl.Type {
+	// implement :p
+	return nil
+}
