@@ -1,14 +1,14 @@
 package parse
 
 import (
+	"github.com/anz-bank/sysl/pkg/sysl"
 	"github.com/spf13/afero"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
 )
 
 func TestFindTyperef(t *testing.T){
- input :=
+	 input :=
 `Foo:
     !type Bar:
         s string
@@ -21,21 +21,47 @@ func TestFindTyperef(t *testing.T){
         Bar
         Y
 `
-fs := afero.NewMemMapFs()
-	_ = afero.WriteFile(fs, "foo.sysl", []byte (input), os.ModePerm)
+	fs := afero.NewMemMapFs()
+		_ = afero.WriteFile(fs, "foo.sysl", []byte (input), os.ModePerm)
 
 	mod, _ := NewParser().Parse("foo.sysl", fs)
 
-	res := findTypeRef([]string{}, []string{"Foo1", "Bar"}, mod)
-	res1 := findTypeRef([]string{}, []string{"", "Bar"}, mod)
-	res2 := findTypeRef([]string{}, []string{"Foo", "Bar"}, mod)
-	res3 := findTypeRef([]string{}, []string{"Foo", "U"}, mod)
-	res4 := findTypeRef([]string{}, []string{"Foo", "Bar", "Y"}, mod)
-	res5 := findTypeRef([]string{}, []string{"Foo", "Bar", "Y", "z"}, mod)
-	assert.Nil(t, res)
-	assert.Nil(t, res1)
-	assert.NotNil(t, res2)
-	assert.NotNil(t, res3)
-	assert.NotNil(t, res4)
-	assert.NotNil(t, res5)
+	var typerefTestsNil = []struct{
+		ref []string
+		want *sysl.Type
+	}{
+		{[]string{"Foo1", "Bar"}, nil},
+		{[]string{"", "Bar"}, nil},
+		{[]string{"", "Bar", "Y", "z"}, nil},
+	}
+
+	for _, tt := range typerefTestsNil {
+		got := findTypeRef([]string{}, tt.ref, mod)
+		if got != tt.want {
+			t.Errorf("Typreref: expected differs from actual")
+		}
+	}
+
+	var typerefTestsNotNil = []struct{
+		ref []string
+		want bool
+	}{
+		{[]string{"Foo", "Bar"}, false},
+		{[]string{"Foo", "U"}, false},
+		{[]string{"Foo", "Bar", "Y"}, false},
+		{[]string{"Foo", "Bar", "Y", "z"}, false},
+	}
+
+	for _, tt := range typerefTestsNotNil {
+		res := findTypeRef([]string{}, tt.ref, mod)
+		var got bool
+		if res == nil{
+			got = true
+		} else{
+			got = false
+		}
+		if got != tt.want {
+			t.Errorf("Typreref: expected differs from actual")
+		}
+	}
 }
