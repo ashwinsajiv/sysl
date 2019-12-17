@@ -1,8 +1,8 @@
 package parse
 
 import (
-	"github.com/anz-bank/sysl/pkg/sysl"
 	"github.com/spf13/afero"
+	"github.com/stretchr/testify/require"
 	"os"
 	"testing"
 )
@@ -28,40 +28,26 @@ func TestFindTyperef(t *testing.T){
 
 	var typerefTestsNil = []struct{
 		ref []string
-		want *sysl.Type
 	}{
-		{[]string{"Foo1", "Bar"}, nil},
-		{[]string{"", "Bar"}, nil},
-		{[]string{"", "Bar", "Y", "z"}, nil},
+		{[]string{"Foo1", "Bar"}},
+		{[]string{"", "Bar"}},
+		{[]string{"", "Bar", "Y", "z"}},
 	}
 
 	for _, tt := range typerefTestsNil {
-		got := findTypeRef([]string{}, tt.ref, mod)
-		if got != tt.want {
-			t.Errorf("Typreref: expected differs from actual")
-		}
+		require.Nil(t,findTypeRef([]string{}, tt.ref, mod) )
 	}
 
 	var typerefTestsNotNil = []struct{
 		ref []string
-		want bool
 	}{
-		{[]string{"Foo", "Bar"}, false},
-		{[]string{"Foo", "U"}, false},
-		{[]string{"Foo", "Bar", "Y"}, false},
-		{[]string{"Foo", "Bar", "Y", "z"}, false},
+		{[]string{"Foo", "Bar"}},
+		{[]string{"Foo", "U"}},
+		{[]string{"Foo", "Bar", "Y"}},
+		{[]string{"Foo", "Bar", "Y", "z"}},
 	}
 
 	for _, tt := range typerefTestsNotNil {
-		res := findTypeRef([]string{}, tt.ref, mod)
-		var got bool
-		if res == nil{
-			got = true
-		} else{
-			got = false
-		}
-		if got != tt.want {
-			t.Errorf("Typreref: expected differs from actual")
-		}
+		require.NotNil(t,findTypeRef([]string{}, tt.ref, mod) )
 	}
 }
