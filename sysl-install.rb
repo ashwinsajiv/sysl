@@ -29,7 +29,7 @@ Gem::Package::TarReader.new( Zlib::GzipReader.open tar_gz_archive ) do |tar|
   end
 end
 
-Src = File.join(ENV['HOME'], 'Library', 'Caches', 'Homebrew', 'sysl-0.7.0', 'cmd', 'sysl')
+Src = File.join('/', 'Users', ENV['USER'], 'Library', 'Caches', 'Homebrew', 'sysl-0.7.0', 'cmd', 'sysl')
 Dir.chdir Src
 system("go", "build")
 Dest = File.join(ENV['HOME'],'go', 'bin')
