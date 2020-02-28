@@ -1,3 +1,5 @@
+require 'fileutils'
+
 Src = File.join('/', 'Users', ENV['USER'], 'Library', 'Caches', 'Homebrew', 'sysl-0.8.0', 'cmd', 'sysl')
 Dir.chdir Src
 system("go", "build")
