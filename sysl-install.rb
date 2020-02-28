@@ -2,7 +2,7 @@ require 'rubygems/package'
 require 'zlib'
 
 TAR_LONGLINK = '././@LongLink'
-tar_gz_archive = File.join(ENV['HOME'], 'Library', 'Caches', 'Homebrew', 'sysl--0.5.0.tar.gz')
+tar_gz_archive = File.join(ENV['HOME'], 'Library', 'Caches', 'Homebrew', 'sysl--0.7.0.tar.gz')
 destination = File.join(ENV['HOME'], 'Library', 'Caches', 'Homebrew')
 
 Gem::Package::TarReader.new( Zlib::GzipReader.open tar_gz_archive ) do |tar|
@@ -29,7 +29,7 @@ Gem::Package::TarReader.new( Zlib::GzipReader.open tar_gz_archive ) do |tar|
   end
 end
 
-Src = File.join(ENV['HOME'], 'Library', 'Caches', 'Homebrew', 'sysl-0.5.0', 'cmd', 'sysl')
+Src = File.join(ENV['HOME'], 'Library', 'Caches', 'Homebrew', 'sysl-0.7.0', 'cmd', 'sysl')
 Dir.chdir Src
 system("go", "build")
 Dest = File.join(ENV['HOME'],'go', 'bin')
