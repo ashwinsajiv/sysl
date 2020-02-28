@@ -1,6 +1,6 @@
 require 'fileutils'
 
-Src = File.join('/', 'Users', ENV['USER'], 'Library', 'Caches', 'Homebrew', 'sysl-0.8.0', 'cmd', 'sysl')
+Src = File.join('/', 'Users', ENV['USER'], 'Library', 'Caches', 'Homebrew', 'sysl-0.9.0', 'cmd', 'sysl')
 Dir.chdir Src
 system("go", "build")
 Dest = File.join(ENV['HOME'],'go', 'bin')
